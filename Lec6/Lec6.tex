@@ -1,0 +1,525 @@
+\documentclass[usletter]{article}
+\usepackage[margin=1.5in]{geometry}
+
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{blkarray}
+
+\usepackage[mathscr]{eucal}
+\usepackage[dvipsnames]{color}
+\usepackage[colorlinks=true,allcolors=blue,breaklinks,draft=false]{hyperref}
+
+\usepackage{scribe}
+
+\def\VR{\kern-\arraycolsep\strut\vrule &\kern-\arraycolsep}
+\def\vr{\kern-\arraycolsep & \kern-\arraycolsep}
+
+\newcommand*{\Scale}[2][4]{\scalebox{#1}{\ensuremath{#2}}}%
+
+
+
+\newcommand {\mat}[1]  {\ensuremath{\mathbf{#1}}}
+
+\newcommand {\setop}[1]  {\ensuremath{\mathcal{#1}}}
+\newcommand {\powerset}  {\setop{P}}
+
+
+\newcommand {\complexity}[1] {\ensuremath{\mathsf{#1}}}
+\newcommand {\D}             {\complexity{D}}
+\newcommand {\N}             {\complexity{N}}
+\newcommand {\FS}            {\complexity{FS}}
+\newcommand {\RS}[1]         {\ensuremath{\complexity{RS}_{#1}}}
+
+
+\newcommand {\function}[2]  {\ensuremath{\textsc{#1}_{#2}}}
+\newcommand {\efunction}[3] {\ensuremath{\textsc{#1}^{#2}_{#3}}}
+\newcommand {\DISJ}[2]      {\function{DISJ}{#1,#2}}
+\newcommand {\iDISJ}[2]     {\efunction{DISJ}{-1}{#1,#2}}
+
+
+\newcommand {\bigO}     {\ensuremath{O}}
+\newcommand {\bigT}     {\ensuremath{\Theta}}
+\newcommand {\bigW}     {\ensuremath{\Omega}}
+
+\newcommand {\vdim}     {\ensuremath{\mathbf{dim}}}
+\newcommand {\rank}     {\ensuremath{\mathbf{rk}}\ }
+\newcommand {\vspan}    {\ensuremath{\mathbf{span}}}
+
+\newcommand {\operator}[1] {\ensuremath{\mathbb{#1}}}
+\newcommand {\prob}        {\operator{P}}
+
+
+\newcommand {\bit}       {\ensuremath{\{0,1\}}}
+\newcommand {\range}[2]  {\ensuremath{\{#1{1},#1{2},\ldots,#1{#2}\}}}
+\newcommand {\zrange}[2] {\ensuremath{\{#1{0},#1{1},\ldots,#1{#2}\}}}
+
+
+\newcommand {\todo}   {\textbf{\color{blue} \large TODO: }}
+
+\newenvironment {todoblock} {
+  \begin{center}
+  \begin{tabular}{|p{0.9\textwidth}|}
+    \hline\\
+    \textbf{\color{red} \large TODO:} \\
+} {
+    \\\\\hline
+  \end{tabular}
+  \end{center}
+}
+
+\begin{document}
+
+\makeheader{Saswat Padhi}                             % your name
+           {April 13, 2016}                           % lecture date
+           {6}                                        % lecture number
+           {$k$-disjointness \& \RS{}-Bound}  % lecture title
+
+\noindent
+In this lecture, we examine a function for which the relationship between the deterministic, nondeterministic, and co-nondeterministic communication complexities that we discussed in last section --- $D(f) \leqslant \bigO(\N(f)\ \N(\neg f))$, turns out to be tight. One such function is the $k$-disjointness function (\DISJ{n}{k}). We show that $D(f) \geqslant \bigW(\N(f)\ \N(\neg f))$ for $f = \DISJ{n}{k}$, thus proving that the bounds due to the earlier mentioned relationship is tight.
+
+Finally we discuss a new technique for estimating lower-bounds on non-deterministic communication complexity of functions -- the \complexity{RectangleSize} bound (\RS{}-bound).
+
+\section{The $k$-disjointness function (\textnormal{\DISJ{n}{k})}}
+
+\begin{definition}
+the $k$-disjointness function,
+$$
+\DISJ{n}{k} : \binom{\range{}{n}}{k} \times \binom{\range{}{n}}{k} \rightarrow \bit
+$$
+where,
+$$
+\binom{\range{}{n}}{k} = \{ S \subseteq \range{}{n} : |S| = k\}
+$$
+is defined as:
+$$
+\DISJ{n}{k}(A, B) =
+  \begin{cases}
+    \: 1 & \quad \text{if } A \cap B = \phi \\
+    \: 0 & \quad \text{otherwise}\\
+  \end{cases}
+$$
+\end{definition}
+
+\noindent
+This function is identical to the set disjointness (\function{DISJ}{n}) function, but note that the set of inputs is restricted to subsets of size \textit{exactly} $k$, rather than arbitrary subsets.
+
+\noindent
+We state the following lemmas, which are proved in subsequent subsections.
+\begin{lemma}[Co-Nondeterministic Complexity]
+\label{co-nondet-disj_nk}
+$$
+\N(\neg\DISJ{n}{k}) = \bigO(\log{n})
+$$
+\end{lemma}
+
+\begin{lemma}[Nondeterministic Complexity]
+\label{nondet-disj_nk}
+$$
+\N(\DISJ{n}{k}) = \bigO(k + \log{\log{n}})
+$$
+\end{lemma}
+
+\begin{lemma}[Deterministic Complexity]
+\label{det-disj_nk}
+$$
+\forall k \in \{1,2,\ldots,\lfloor n/2 \rfloor\} :
+  \D(\DISJ{n}{k}) = \bigg\lceil \log{\binom{n}{k} + 1} \bigg\rceil
+                  \geqslant k \log{\frac{n}{k}}
+                  = \bigW(k \log{n})
+$$
+\end{lemma}
+
+\noindent
+It is easy to see that the bound obtained using ($\D(f) \leqslant \bigO(N(f) \ \N(\neg f))$), is tight.
+
+\noindent
+With $f = \DISJ{n}{k}$ and $k = \log{n}$, the relationship discussed in the last section gives us:
+$$
+\D(\DISJ{n}{\log{n}}) \leqslant \bigO(\N(\DISJ{n}{\log{n}}) \ \N(\neg \DISJ{n}{\log{n}}))
+$$
+
+\noindent
+Using lemmas \ref{co-nondet-disj_nk}, \ref{nondet-disj_nk}, and \ref{det-disj_nk} we have:
+$$
+\D(\DISJ{n}{\log{n}}) \geqslant \bigW(\N(\DISJ{n}{\log{n}}) \ \N(\neg \DISJ{n}{\log{n}}))
+$$
+
+\noindent
+Therefore the bound is actual tight, i.e.
+$$
+\D(\DISJ{n}{\log{n}}) = \bigT(\N(\DISJ{n}{\log{n}}) \ \N(\neg \DISJ{n}{\log{n}}))
+$$
+
+
+
+\subsection{Proof of Lemma~\ref{co-nondet-disj_nk}}
+Proving this lemma is trivial. Note that:
+$$
+\neg\DISJ{n}{k}(A, B) = 1 \Rightarrow \exists i \in \range{}{n} : i \in A \wedge i \in B
+$$
+So $A$ can simply \textit{guess} an $i \in A$ and send it to $B$, using $O(\log{n})$ bits. \\$B$ can simply wait till it receives $i$ from $A$ and then output $1$ if $i \in B$.
+
+
+
+\subsection{Proof of Lemma~\ref{nondet-disj_nk}}
+
+Note that, if $A \cap B = \phi$, the following must hold:
+$$
+\exists S \subseteq \range{}{n} : A \subseteq S \wedge B \subseteq \overline{S}
+$$
+We call such a set $S$, the witness for the disjointness of $A$ and $B$. And we need an efficient protocol to compute such an $S$, to assert that $\DISJ{n}{k}(A, B) = 1$.
+
+\subsubsection*{A Na\"{i}ve Nondeterministic Protocol}
+
+A simple na\"{i}ve nondeterministic protocol could be:
+\begin{enumerate}
+  \item \textit{Guess} $S \subseteq \range{}{n}$ s.t. $|S| = k$. \hfill (communication cost = $k \log{n}$ bits)
+  \item At $A$:
+    \begin{enumerate}
+        \item Check if $A \subseteq S$.
+        \item If the check fails, output $0$ and terminate.
+        \item Send a $1$ bit to $B$. \hfill (communication cost = $1$ bit)
+    \end{enumerate}
+  \item At $B$:
+    \begin{enumerate}
+        \item Wait till a $1$ bit is received from $A$.
+        \item Output $1$ if $B \subseteq \overline{S}$ holds, else output $0$.
+    \end{enumerate}
+\end{enumerate}
+This protocol has a huge communication cost of $\bigO(k \log{n})$! \\
+Note that we transmit only the $k$ elements in $S$, with the assumption that $k \ll n$. For larger $k$, a more effective approach might be to transmit an $n$-bit vector, with a cost of $\bigO(n)$.
+
+\subsubsection*{An Efficient Nondeterministic Protocol}
+
+\begin{proof}[Idea]
+Rather than \textit{guessing} $S$ from the large set $\powerset(\range{}{n})$, we would show that it is enough to choose $S$ from a much smaller family $\range{S_}{N}$ where $N \ll 2^n$, thus reducing the communication cost for guessing $S$ from $\log{2^{n}}$ to $\lceil \log{N} \rceil$.
+\end{proof}
+
+\noindent
+Assuming the existence of such an $N$ (for which we provide a concrete value later), we can use the na\"{i}ve protocol with the restriction of \textit{guessing} $S$ from the family $\range{S_}{N}$. We pick sets $\range{S_}{N} \subseteq \range{}{n}$ uniformly at random. \\
+
+\noindent
+Then, for any pair of sets $\langle A, B\rangle \in \iDISJ{n}{k}(1)$,
+\begin{align*}
+&\underset{\range{S_}{N}}{\Scale[1.5]{\prob}}
+   \Big[ \forall i : A \not\subseteq S_i \vee
+                     B \not\subseteq \overline{S_i} \Big] \\
+=\ &\bigg( \underset{S \subseteq \range{}{n}}{\Scale[1.5]{\prob}}
+   \Big[ A \not\subseteq S \vee B \not\subseteq \overline{S} \Big] \bigg)^N \\
+=\ &\bigg( 1 - \underset{S \subseteq \range{}{n}}{\Scale[1.5]{\prob}}
+   \Big[ A \subseteq S \wedge B \subseteq \overline{S} \Big] \bigg)^N \\
+=\ &\bigg( 1 - \frac{1}{2^{2k}} \bigg)^N  < e^{-\frac{N}{2^{2k}}}
+\end{align*}
+
+\noindent
+Therefore,
+\begin{align*}
+&\underset{\range{S_}{N}}{\Scale[1.5]{\prob}}
+   \Big[ \exists \langle A, B \rangle \subseteq \iDISJ{n}{k}(1) :
+                 \forall i : A \not\subseteq S_i \vee
+                             B \not\subseteq \overline{S_i} \Big] \\
+<\ & \iDISJ{n}{k}(1) \cdot e^{-\frac{N}{4^k}} \\
+<\ & \binom{n}{k} \binom{n-k}{k} \cdot e^{-\frac{N}{4^k}} \\
+\ll\ & \frac{n^{2k}}{e^{-\frac{N}{4^k}}}
+\end{align*}
+
+\noindent
+The above value is strictly less than $1$ for $N = \lceil 4^k 2k \ln{n}\rceil$. \\
+Thus, $\N(\DISJ{n}{k}) \leqslant \log{\lceil 4^k 2k \ln{n}\rceil} = \bigO(k + \log{\log{n}})$.
+
+
+
+\subsection{Proof of Lemma~\ref{det-disj_nk}}
+
+In our discussion, we abbreviate the matrix $M_{\DISJ{n}{k}}$ of the function $\DISJ{n}{k}$ to $M_{n,k}$.
+
+\noindent
+For proving lemma~\ref{det-disj_nk} it is enough to show that,
+$$
+\forall k \in \zrange{}{\lfloor n/2 \rfloor} : \rank M_{n,k} = \binom{n}{k}
+$$
+i.e. the matrix $M_{n,k}$ has \textit{full} rank for $0 \leqslant k \leqslant \lfloor \frac{n}{2} \rfloor$. \\
+
+\noindent
+We prove this by induction on $k$. \\
+Note that the base cases here are $k = 0$ and $k = \lfloor \frac{n}{2}\rfloor$, which are easily verified.
+\begin{align*}
+    k = 0 &\Rightarrow M_{n,k} = \mat{1}_{\binom{n}{k}} \\
+          &\Rightarrow \rank M_{n,k} = 1 = \binom{n}{0}
+\end{align*}
+\begin{align*}
+    k = \Big\lfloor \frac{n}{2} \Big\rfloor
+        &\Rightarrow M_{n,k} = \mat{I}_{\binom{n}{k}} \\
+        &\Rightarrow \rank M_{n,k} = \binom{n}{k}
+\end{align*}
+
+\noindent
+Here \mat{1} denotes the \textit{all-ones} square matrix and \mat{I} denotes the identity matrix.
+
+\subsubsection*{Proving the inductive case}
+
+Note that, $M_{n,k}$ has the following block form:
+$$ \arraycolsep=1.45pt \def\arraystretch{2}
+  \begin{blockarray}{ccc}
+    & n \in B & n \not\in B \\
+    \begin{block}{c[c|c]}
+      n \in A   & \mat{0} & * \\
+      \cline{2-3}
+      n \not\in A & * & M_{n-1,k} \\
+    \end{block}
+  \end{blockarray}
+$$
+
+\noindent
+The above matrix $M_{n,k}$ can be transformed to:
+$$ \arraycolsep=1.6pt \def\arraystretch{2.5}
+  \begin{blockarray}{ccc}
+    & n \in B & n \not\in B \\
+    \begin{block}{c[c|c]}
+      n \in A     & M_{n-1,k-1} & \mat{0} \\
+      \cline{2-3}
+      n \not\in A & * & M_{n-1,k} \\
+    \end{block}
+  \end{blockarray}
+$$
+
+\noindent
+using elementary matrix operations:
+\begin{align*}
+M_{n,k}(A,B) &\mapsto -M_{n,k}(A,B) + \frac{1}{n - 2k + 1}
+                                     \sum_{\{\widetilde{A} : A - \{n\} \subseteq \tilde{A}\}} {M_{n,k}(\widetilde{A},B)} \\
+             &= -M_{n,k}(A,B) + \frac{1}{n - 2k + 1}
+                                (n - 2k + 1)\DISJ{n}{k}(A-\{n\}, B-\{n\}) \\
+             &= \begin{cases}
+                  \DISJ{n-1}{k-1}(A-\{n\}, B-\{n\})
+                        &\quad \text{if } n \in A \wedge n \in B \\
+                  0
+                        &\quad \text{if } n \in A \wedge n \not\in B \\
+                  \DISJ{n}{k}(A, B)
+                        &\quad \text{otherwise}
+                \end{cases}
+\end{align*}
+
+\noindent
+It is now easy to see that,
+\begin{align*}
+    \rank M_{n,k} &= \rank M_{n-1,k-1} + \rank M_{n-1,k} \\
+                  &= \binom{n-1}{k-1} + \binom{n-1}{k} & \text{(Using the induction hypothesis)} \\
+                  &= \binom{n}{k}
+\end{align*}
+Using the \complexity{Rank}-bound, we get lemma~\ref{det-disj_nk}.
+
+\clearpage
+
+\section{The \complexity{RectangleSize} (\RS{}) Bound}
+
+\begin{definition}
+For a function $f : \bit^n \times \bit^n \rightarrow \bit$, given a probability distribution $\mu$ over $f^{-1}(1)$, the rectangle size of $f$ with respect to $\mu$ is defined as:
+$$
+\RS{\mu}(f) = \max{\{\mu(R) : R \text{ is an $f$-monochromatic rectangle in } M_f\}}
+$$
+where $\displaystyle \mu(R) = \sum_{x \in R} \mu(x)$.
+\end{definition}
+
+\begin{example}
+Consider the following matrix $M_f$ for a function $f$, and the associated probability distribution $\mu$: (superscripts indicate probabilities induced by $\mu$)
+{\large $$
+M_f = \begin{bmatrix}
+        ^{(1/2)}1 & 1         & 0 \\
+        0         & ^{(1/2)}\underline{1} & \underline{1} \\
+        1         & \underline{1}         & \underline{1} \\
+      \end{bmatrix}
+$$
+}
+$\RS{\mu}(f) = \frac{1}{2}$, for the $2\times2$ rectangle defined by the underlined ones ($\underline{1}$).
+\end{example}
+
+\begin{example}
+Now consider a minor variation of the function $f$:
+{\large $$
+M_f = \begin{bmatrix}
+        ^{(1/2)}\underline{1} & \underline{1} & 0 \\
+        \underline{1} & ^{(1/2)}\underline{1} & 1 \\
+        \underline{1} & \underline{1}         & 1 \\
+      \end{bmatrix}
+$$
+}
+$\RS{\mu}(f) = 1$, for the $3\times2$ rectangle defined by the underlined ones ($\underline{1}$).
+\end{example}
+
+
+\begin{definition}
+For a function $f : \bit^n \times \bit^n \rightarrow \bit$, the rectangle size of $f$ is defined as:
+$$
+\RS{}(f) = \min_{\mu \text{ on } f^{-1}(1)} \RS{\mu}(f)
+$$
+\end{definition}
+
+\begin{example}
+Consider a function $f$ with the following matrix $M_f$:
+{\large $$
+M_f = \begin{bmatrix}
+        0 & 0 & ^{0.087}1 & ^{0.053}1 & ^{0.025}1 & ^{0.057}1 \\
+        ^{0.082}1 & 0 & 0 & 0 & 1 & ^{0.14}1 \\
+        0 & ^{0.029}1 & ^{0.031}1 & ^{0.051}1 & 0 & 0 \\
+        ^{0.054}\underline{1} & ^{0.024}\underline{1} & 0 & ^{0.119}\underline{1} & ^{0.026}\underline{1} & 0 \\
+        ^{0.054}1 & ^{0.058}1 & ^{0.104}1 & 0 & ^{0.006}1 & 0 \\
+      \end{bmatrix}
+$$
+}
+$\RS{}(f) \approx \frac{2}{9}$. The underlined ones ($\underline{1}$) show one particular $\mu$ which achieves this.
+\footnote{The \href{http://www.sagemath.org/}{\texttt{SageMath}} script used to compute this is available on
+  \href{https://github.com/SaswatPadhi/S16_CS289A/blob/master/Lec6/RectSize.sagews}{GitHub}}.
+\end{example}
+
+\begin{theorem}[The \complexity{RectangleSize} bound]
+For any function $f : \bit^n \times \bit^n \rightarrow \bit$,
+$$
+\N(f) \geqslant \bigg\lceil \log{\frac{1}{\RS{}(f)}} \bigg\rceil
+$$
+\end{theorem}
+\begin{proof}
+Let $\mu$ be any probability distribution on $f^{-1}(1)$, \\
+and the rectangles \range{R_}{c} be the cover of $f^{-1}(1)$. \\
+
+\noindent
+Then we have:
+\begin{align*}
+    1 =\ & \mu(f^{-1}(1)) \\
+      =\ & \mu\bigg( \bigcup_{i=1}^{c}R_i \bigg) \\
+      \leqslant\ & \sum_{i=1}^{c}\mu(R_i) \\
+      =\ & c \ \RS{\mu}(f)
+\end{align*}
+
+\begin{flalign*}
+    \text{Therefore,}
+    \qquad
+    &c \geqslant \frac{1}{\RS{\mu}(f)} \geqslant \frac{1}{\RS{}(f)}& \\
+    \text{Further,}
+    \qquad
+    &\N(f) \geqslant \log{c} \geqslant \log{\bigg\lceil \frac{1}{\RS{}(f)} \bigg\rceil}&
+\end{flalign*}
+\end{proof}
+
+\noindent
+The following corollary follows immediately from the above theorem, since $\displaystyle \RS{}(f) \leqslant \frac{1}{\FS{}(f)}$.
+
+\begin{corollary}$\label{nondet-fs-relation}
+\displaystyle
+\N(f) \geqslant \bigg\lceil \log{\FS(f)} \bigg\rceil
+$\end{corollary}
+
+
+
+
+\subsection*{Revisiting the \N(f) Bounds}
+
+\subsubsection*{The Equality Function (\function{EQ}{n})}
+
+It is easy to observe that $M_{\function{EQ}{n}} = \mat{I}_{2^n}$.
+
+\begin{itemize}
+  \item $\N(\function{EQ}{n})$: \\
+  A 1-\complexity{FoolingSet} for $\mat{I}_{2^n}$ is simply the diagonal, which has $2^n$ elements. \\
+  Using corollary~\ref{nondet-fs-relation}, $\N(\function{EQ}{n}) \geqslant n$.
+
+  \item $\N(\neg\function{EQ}{n})$: \\
+  Since $\D(\function{EQ}{n}) = n$, we have $\N(\function{EQ}{n}) \geqslant \log{(n-1)}$.
+\end{itemize}
+
+
+\subsubsection*{The Greater-Than Function (\function{GT}{n})}
+
+It is easy to observe that $M_{\function{GT}{n}}$ is an upper-half (or lower-half) triangular matrix.
+
+\begin{itemize}
+  \item $\N(\function{GT}{n})$: \\
+  A 1-\complexity{FoolingSet} for $M_{\function{GT}{n}}$ is simply the diagonal, which has $2^n$ elements. \\
+  Using corollary~\ref{nondet-fs-relation}, $\N(\function{GT}{n}) \geqslant n$.
+
+  \item $\N(\neg\function{GT}{n})$: \\
+  A 0-\complexity{FoolingSet} for $M_{\function{GT}{n}}$ is the 0-diagonal next to main diagonal, with $2^n-1$ elements. \\
+  Using corollary~\ref{nondet-fs-relation}, $\N(\neg\function{GT}{n}) \geqslant n$.
+\end{itemize}
+
+
+\subsubsection*{The Inner-Product Function (\function{IP}{n})}
+
+Recall that \function{IP}{n} had no large \complexity{FoolingSet}:
+$$
+  \FS(\function{IP}{n}) \leqslant (n+1)^2
+$$
+Therefore, no monochromatic rectangle has a \textit{large} weight. We try to obtain a lower-bound on the weight of large monochromatic rectangles.
+
+Consider the matrix $\displaystyle M_{\function{IP}{n}}$. Except the first row (which has all zeroes), the following $2^n-1$ rows are \textit{balanced}.
+
+\begin{itemize}
+  \item $\N(\neg\function{IP}{n})$: \\
+    We define a uniform probability distribution $\mu$ on $\efunction{IP}{-1}{n}(0)$ as:
+    {\large$$
+    \mu(x,y) =
+      \begin{cases}
+        \frac{1}{2^n + (2^n - 1)2^{n-1} } &\quad \function{IP}{n}(x,y) = 0 \\
+        0 &\quad \text{otherwise} \\
+      \end{cases}
+    $$}
+    and claim that,
+
+    \begin{claim}Over $\mathbb{F}_2$,
+        $\displaystyle \RS{\mu}(\neg\function{IP}{n}) < \frac{1}{2^{n-1}}$
+    \end{claim}
+    \begin{proof}
+        Over $\mathbb{F}_2$,
+        $$
+            \neg\function{IP}{n}(x,y) = 1 + \langle x,y \rangle =
+              \begin{cases}
+                1 &\quad \text{if } \langle x,y \rangle = 0 \\
+                0 &\quad \text{otherwise}
+              \end{cases}
+        $$
+        Let $R$ be a $0$-monochromatic rectangle $A \times B$. Then,
+        \begin{align*}
+          & \forall x \in A, y \in B : \langle x,y \rangle = 0 \\
+          \Rightarrow\ & \forall x \in \vspan(A), y \in \vspan(B) : \langle x,y \rangle = 0 \\
+          \Rightarrow\ & \vspan(A) \text{ and } \vspan(B) \text{ are \textit{orthogonal} in } \mathbb{F}_2 \\
+          \Rightarrow\ & \vdim(\vspan(A)) + \vdim(\vspan(B)) \leqslant n \\
+          ~\\
+          |A \times B| \leqslant\ & |\vspan(A) \times \vspan(B)| \\
+          \leqslant\ & 2^{\vdim(\vspan(A)) + \vdim(\vspan(B))} \\
+          \leqslant\ & 2^n \\
+          ~\\
+          \mu(R) =\ & \frac{|\vspan(A) \times \vspan(B)|}{2^n + (2^n-1)2^{n-1}} \\
+          <\ & \frac{1}{2^{n-1}}
+        \end{align*}
+    \end{proof}
+
+    Since $\RS{}(f) \leqslant \RS{\mu}(f)$, we have $\N(\neg\function{IP}{n}) \geqslant n$.
+  \item $\N(\function{IP}{n})$: \\
+  Observe that,
+  $$
+  \neg\function{IP}{n-1}(\{x_1, \ldots , x_{n-1}, y_1, \ldots, y_{n-1}\}) = \function{IP}{n}(\{x_1, \ldots , x_{n-1}, 1, y_1, \ldots, y_{n-1}, 1\})
+  $$
+  Therefore, $\N(\neg\function{IP}{n-1}) \leqslant \N(\function{IP}{n})$. \\
+  Using the previous result, $\N(\function{IP}{n}) \geqslant n-1$.
+\end{itemize}
+
+\noindent
+Note that we have an \textit{exponential gap} between the bounds from \complexity{FoolingSet} ($\FS(f) \leqslant (n+1)^2$) and \complexity{RectangleSize} ($\RS{}(f) \leqslant 2^{1-n}$) for $f = \function{IP}{n}$.
+
+
+\subsubsection*{The Disjoint Function (\function{DISJ}{n})}
+
+\begin{itemize}
+  \item $\N(\function{DISJ}{n})$: \\
+  Recall that the set $\{\langle A, \overline{A} \rangle : A \subseteq \range{}{n}\}$ is a 1-\complexity{FoolingSet} on $M_{\function{DISJ}{n}}$. \\
+  Using corollary~\ref{nondet-fs-relation}, $\N(\function{DISJ}{n}) \geqslant n$.
+
+  \item $\N(\neg\function{DISJ}{n})$: \\
+  Since $\D(\function{EQ}{n}) = n+1$, we have $\N(\function{EQ}{n}) \geqslant \log{n}$.
+\end{itemize}
+
+
+\end{document}
