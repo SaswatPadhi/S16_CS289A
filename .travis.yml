@@ -1,0 +1,23 @@
+language: generic
+sudo: false
+addons:
+  apt:
+    packages:
+    - pgf
+    - latexmk
+    - texlive
+    - texlive-science
+    - texlive-latex-extra
+script:
+- cd Lec6 && latexmk && cd ..
+notifications:
+  email: false
+deploy:
+  provider: releases
+  api_key:
+    secure: ShWV6oOSQ84+ER2ODn590nEprQ5iaQsEJzjgOIk2eplhsbvCvpuPuhQRcbR/8gVnCBHdMRTfF9nqYyxcuh+Gtkr0KN7IuZWYZXDXWtzomaEYdjR3Vuda89K3kZ3GZA1+eoTyAbMyUMErUaNeHu2fkVXwX79ULlLiPM7QAIXaXemQQLlEW19bzHOSvB71BjWLsQ0kf6fiFRPRROTodmuIlDpW3dLIlLBYM/c0GPt0SYQLVsEfTtUQX/0O3QsYVUSA9GIDJ/uJUFZw6Z8b2kmPPPByk5f9tIKAfdTjIsaqF7fNdAk8iPGRfivbu//RCc+Du2o7VXmaPmnakE0UbtCGtghFrRGRCA5wp1go0DVuMz2TymhwXFkf+LJ1NP8YjQIQO9wRuh21MbqZlPWRoJHMENWk2C8hV51Y2efrnjSgfF0jagv/L+nEEXuLdRempdg2HKRW4/BzjtoMM9TtL2kXZngaqXUR18C/3VJQ427Yg3+2I8yFTTAYIk1e2uuzL8NrKQFl446s4BN89U5SfG7IHfvd+ErvQUlWZzi4Lyb1Oatn2fFzyUD6mt/C3bGpvB9aY2d+Rabk667PVpwgtwcXIxDBYSrxTky2CIpFvClgSpQ6MnbxvNPSF6LgMhwi/gDeWMQAztuES/LIUciN41L018XqQ9VETnaxMdgW5MZNBrE=
+  skip_cleanup: true
+  file: Lec6/lec6.pdf
+  on:
+    tags: true
+    repo: SaswatPadhi/S16_CS289A
